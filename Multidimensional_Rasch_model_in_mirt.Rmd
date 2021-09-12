@@ -5,26 +5,55 @@ date: "2021年9月8日"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+## Multidimensional Rasch Model
+
+
+```{r}
+library("hemp")
+library("mirt")
+```
+```{r}
+mrasch_mod <- "F1 = 1 - 6, 13 - 21, 23 - 24
+               F2 = 7 - 20, 22 - 24
+               COV = F1 * F2"
+```
+```{r}
+mrasch_fit <- mirt(data = mimic, model = mrasch_mod,
+                       itemtype = "Rasch", SE = TRUE, verbose = FALSE)
+```
+```{r}
+mrasch_params <- coef(mrasch_fit, simplify = TRUE)
+mrasch_params$items
 ```
 
-## R Markdown
+Item 13-20, 23 and 24 has a non-zero item discrimination parameter for both a1 and a2 because this particular item is associated with both F1 and F2.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Column d represents the estimated intercept parameter for the items. G and u are the lower asymptote (ie., guessing) and upper asymptote parameters.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+mrasch_items <-data.frame(MDISC(mrasch_fit),MDIFF(mrasch_fit))
+```
+```{r}
+colnames(mrasch_items) <- c("mrasch_mdisc", "mrasch_diff")
+mrasch_items
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+Finally, the authour print the estimated variance-covariance matrix of the two latent traits.
+```{r}
+mrasch_params$cov
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+The output shows that the variances of  F1 and F2 are 0.689 and 0.738, respectively. The covariance of the two latent traits is 0.34.
+
+Now, we can check the item and test characteristics visually using the itemplot and plot functions.
+```{r}
+itemplot(mrasch_fit, type = "trace", item =13)
+itemplot(mrasch_fit, type = "tracecontour", item =13)
+```
+Type ="trace" means we can create an item characteristic surface plot, Type= "tracecontour" means we can create an item countour plot.
+```{r}
+plot(mrasch_fit, type="info")
+plot(mrasch_fit, type="SE")
+plot(mrasch_fit, type="score")
+```
+
