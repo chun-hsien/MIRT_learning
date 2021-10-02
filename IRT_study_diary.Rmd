@@ -1,0 +1,21 @@
+---
+title: "IRT study diary"
+author: "Chun Hsien Wu"
+date: "2021年10月1日"
+output: html_document
+---
+```{r set, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+```
+
+### IRT 的研究想法
+####以CDM 作為研究主題的優點
+
+1 已有李政軒的cdm教學影片可供參考
+
+2 Alexander's CDM R packages可以練習模擬使用
+
+####必須精熟irt模型的bugs 語法
+1PL 2PL 3PL 4PL RSM PCM GPCM GRM
+
+

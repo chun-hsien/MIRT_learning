@@ -1,0 +1,58 @@
+---
+title: "PC_M2PL simulation"
+author: "Chun Hsien Wu"
+date: "2021年10月2日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+My own versio of partially compensatory multidimensional item response models
+# total 20 items, first 7 items load dimension1, item 8-14 loads  dimension 2, and items 15-20 loads both dim1 and dim2.
+
+```{r}
+library(sirt)
+```
+
+```{r}
+N <- 4000
+I <- 20
+theta0 <- rnorm(N, sd =1)
+theta1 <- theta0 + rnorm(N, sd = 0.7)
+theta2 <- theta0 + rnorm(N, sd =0.7)
+
+Q <- matrix(1, nrow =I, ncol =2)
+  
+Q[ 1: 7, 2]  <- 0
+Q[8:14,1] <- 0
+
+b <- matrix(rnorm(I*2), I, 2)
+a <- matrix(1, I, 2)
+
+# simulate data
+prob <- dat <- matrix(0, nrow= N, ncol=I)
+
+for(ii in 1: I){
+	prob[,ii] <- (exp(theta1 - b[ii,1]) / (1+exp(theta1 - b[ii,1] ) ) ) ^ Q[ii, 1]
+	prob[,ii] <- prob[,ii] *  (  exp( theta2 - b[ii,2]) / (1+exp(theta2 - b[ii,2]))  )^ Q[ii, 2]
+}
+
+dat[ prob > matrix(stats :: runif(N*I), N, I)] <- 1
+
+colnames(dat) <- paste0("I", 1:I)
+```
+
+Now, using sirt package to estimate persons and items parameters
+
+```{r}
+mod1 <- sirt::smirt(dat, Qmatrix=Q, maxiter=100 ) # change number of iterations
+summary(mod1)
+```
+To understand the difference of true and estimated items parameters
+
+```{r}
+mod1$item[4:5]
+b
+```
+
