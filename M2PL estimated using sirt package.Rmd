@@ -1,0 +1,58 @@
+---
+title: "M2PL estimated using sirt package"
+author: "Chun Hsien Wu"
+date: "2021年10月3日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+My own versio of compensatory  2multidimensional item response model (M2PL)total 20 items.
+
+```{r}
+set.seed(997)
+N <- 4000
+I <- 30
+theta <- mvtnorm::rmvnorm(N, mean=c(0,0), sigma=matrix( c(1.0, 0, 0, 1.0),2, 2 ) )
+Q <- matrix(1, nrow = I, ncol =2)
+```
+Setting item parameters
+```{r}
+d <- seq(from = -1.60 , to = 1.99, length = I )
+a1 <- runif(I, 0.01, 1.998)
+a2 <- seq(from=0.001, to = 1.99, length =I)
+```
+
+
+simulate data
+```{r}
+prob <- dat <- matrix(0, nrow= N, ncol=I)
+
+for(ii in 1: I ){
+	prob[, ii] <-  exp(a1[ii] * theta[,1] + a2[ii] * theta[,2] + d[ii] ) / (1+exp(a1[ii] * theta[,1] + a2[ii] * theta[,2] + d[ii] ))
+ }
+dat[ prob > matrix(stats :: runif(N*I), N, I)] <- 1
+colnames(dat) <- paste0("I", 1:I)
+```
+item parameters estimated in sirt package
+```{r}
+library(sirt)
+mod_m2pl <- sirt::smirt(dat, Qmatrix = Q, irtmodel="comp",est.a="2PL",  maxiter = 50)
+summary(mod_m2pl)
+```
+compare estimated and true d parameter
+```{r}
+cbind(mod_m2pl$item[4], -d)
+```
+compare estimated a2 and true a2 parameter
+```{r}
+cbind(mod_m2pl$item[5], a2)
+```
+compare estimated a1 and true a1 parameter
+```{r}
+cbind(mod_m2pl$item[6], a1)
+```
+
+
+
