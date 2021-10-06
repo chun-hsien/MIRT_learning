@@ -1,0 +1,66 @@
+---
+title: "M2PL_using_mirt_package"
+author: "Chun Hsien Wu"
+date: "2021年10月6日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+My own versio of compensatory  2multidimensional item response model (M2PL)total 20 items, first 7 items load dimension1, item 8-14 loads  dimension 2, and items 15-20 loads both dim1 and dim2.
+```{r}
+library("mirt")
+set.seed(997)
+```
+```{r}
+N <- 4000
+I <- 30
+
+theta <- mvtnorm::rmvnorm(N, mean=c(0,0), sigma=matrix( c(1.0, 0, 0, 1.0),2, 2 ) )
+d <- seq(from = -1.60 , to = 1.99, length = I )
+a1 <- runif(I, 0.01, 1.998)
+a2 <- seq(from=0.001, to = 1.99, length =I)
+```
+The first item’s slope parameter on  the second dimension (“a2”) is fixed as 0 as part of the model identification using the “START” and “FIXED” definitions.
+```{r}
+a2[1] <- 0
+```
+simulate data
+```{r}
+prob <- dat <- matrix(0, nrow= N, ncol=I)
+
+for(ii in 1: I ){
+	prob[, ii] <-  exp(a1[ii] * theta[,1] + a2[ii] * theta[,2] + d[ii] ) / (1+exp(a1[ii] * theta[,1] + a2[ii] * theta[,2] + d[ii] ))
+ }
+dat[ prob > matrix(stats :: runif(N*I), N, I)] <- 1
+colnames(dat) <- paste0("I", 1:I)
+```
+The item loading structure is specified. Every item loads onto each of the two dimensions (“F1” and “F2”). The first item’s slope parameter on the second dimension (“a2”) is fixed as 0 as part of the model identification using the “START” and “FIXED” definitions.
+```{r}
+spec <- 'F1 = 1-30
+		F2 =  1-30
+		START = (1, a2, 0)
+		FIXED = (1, a2)'
+mod.md <- mirt( dat, spec, itemtype ='2PL', SE = T)
+```
+
+```{r}
+m2pl_params <- coef(mod.md, simplify =T)
+m2pl_params$items[,1]
+```
+Compare the estimated a1 and ture a1 parameters
+```{r}
+cbind(a1, m2pl_params$items[,1])
+```
+Compare the estimated a2 and true a2 parameters
+```{r}
+cbind(a2, m2pl_params$items[,2])
+```
+
+Compare the estimated d and true d parameters
+
+```{r}
+cbind(d, m2pl_params$items[,3])
+```
+
