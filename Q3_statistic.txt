@@ -1,0 +1,12 @@
+####Q3 統計量的內涵與程式實現###
+Q3統計量是Yen(1983)所提出 目的是考驗 檢測在試題反應模式下 兩兩試題間殘差分數的相關
+
+
+##文獻##
+(from Okan Bulut)(page 113)
+When the assumption of unidimensional holds, the local independence assumpton is also met because
+the two concepts are related to each other only through the single latent trait (Lord, 1980). 
+Yen's Q3 statistic (Yen, 1984) is one of the most commonly used methods for checking the local independence assumption.
+
+吳宛諭(多向度隨機閾值試題反應理論模式的發展與應用)
+使用Q3統計(Yen, 1983)作為模式差異測量 考驗模式的絕對適配度
