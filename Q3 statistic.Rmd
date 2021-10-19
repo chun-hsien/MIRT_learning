@@ -1,21 +1,47 @@
-####Q3 統計量的內涵與程式實現###
-## 俊賢寫的內容
+---
+title: "Q3 statistic"
+author: "Chun Hsien Wu"
+date: "2021年10月18日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Q3 統計量的內涵與程式實現
+俊賢寫的內容
+
 局部獨立性是單向度試題反應理論的基本假設之一（另一假設為單向度）
+
 局部獨立性是指潛在能力控制的條件下受測者在回答一個試題的作答反應機率與回答另一個試題的反應機率無關
+
 Q3統計量是Yen(1983)所提出 目的是考驗 檢測在試題反應模式下 兩兩試題間殘差分數的相關
+
 Q3 統計量的公式如下
 
 受試者n 在試題i上的得分殘差為
+$$
+   d_{ni} =  u_{ni} - \rm E_i(\hat \theta_{ni})
+$$  
 
 受試者n 在試題j上的得分殘差為
-表示受試者n在第i 題的得分 代表真實分數 
-$\rm E_i(\hat \theta_n)$ 為受試者n 在第i 題上的期望分數
 
+$$
+     d_{nk} =  u_{nk} - \rm E_k(\hat \theta_{nk})
+$$
 Q3統計量為受試者n 在試題i 和試題k 上殘差得分的相關
+$$
+  Q3_{ij}= \gamma_{didk}
+$$
 
-和第j題殘差分數的相關
-
-##文獻##
+ $u_{ni}$表示受試者n在第i 題的得分 代表真實分數
+ 
+ $\rm E_i(\hat \theta_n)$ 為受試者n 在第i 題上的期望分數
+ 
+ 
+ 
+####文獻
 (from Okan Bulut)(page 113)
 When the assumption of unidimensional holds, the local independence assumpton is also met because
 the two concepts are related to each other only through the single latent trait (Lord, 1980). 
@@ -28,5 +54,3 @@ Yen's Q3 statistic (Yen, 1984) is one of the most commonly used methods for chec
 Local independence means that the response to any item is unrelated to any other item when trait level is
 controlled. The items may be highly intercorrelated in the whole sample; however, if trait level is controlled,
 local independence implies that no relationships remain between the items. 
-
-
