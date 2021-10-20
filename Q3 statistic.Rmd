@@ -92,3 +92,58 @@ names(mod.q3)
 mod.q3$q3.matrix
 ```
 We can understand q3.matrix is 12 by 12 matrix. It's the Q3 statistic.
+
+#### using sim.rasch.dep function
+
+Below using sirt package's sim.rasch.dep function to simulate local 
+dependent item response. And I need to analyse sim.rasch.dep function.
+```{r}
+set.seed(7896)
+I <- 12                             # number of items
+n <- 5000                           # number of persons
+b <- seq(-2,2, len=I)               # item difficulties
+bsamp <- b <- sample(b)             # sample item difficulties
+theta <- stats::rnorm( n, sd=1 ) # person abilities
+# itemcluster
+# 共12題 第1-4為第一組 第5-9題為第二組 第10-12題為第三組
+itemcluster <- rep(0,I)
+itemcluster[ 1:4 ] <- 1
+itemcluster[ 6:9 ] <- 2
+itemcluster[ 10:12 ] <- 3
+# residual correlations
+rho <- c( .65, .25, .85 )
+```
+```{r}
+# simulate data
+data1 <- sirt::sim.rasch.dep( theta, b, itemcluster, rho )
+colnames(data1) <- paste("I", seq(1,ncol(data1)), sep="")
+```
+```{r}
+# 以下試著利用 sirt Package 的 Q3 statistic 來估計 local  dependence
+
+# 先估計能力參數
+mod1 <- sirt::rasch.mml2( data1)
+# estmate WLEs
+mod1.wle <- sirt::wle.rasch( dat=data1, b=mod1$item$b )
+```
+```{r}
+# calculate Yen's Q3 statistic
+mod1.q3 <- sirt::Q3( dat=data1, theta=mod1.wle$theta, b=mod1$item$b )
+```
+
+```{r}
+# plot Q3 statistics
+I <- ncol(data1)
+image( 1:I, 1:I, mod1.q3$q3.matrix, col=gray( 1 - (0:32)/32),
+        xlab="Item", ylab="Item")
+abline(v=c(5,9)) # borders for testlets
+abline(h=c(5,9))
+```
+
+```{r}
+names(mod1.q3)
+# below list the Q3 statistic for items
+mod1.q3$q3.matrix
+```
+Notice that item1 to item 4 should have higher Q3 statistic, because we set the correlation coefficient  between item 1 to 4 is .65
+Item 10 to 12 should have the highest Q3 statistic.
