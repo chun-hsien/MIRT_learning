@@ -35,9 +35,9 @@ $$
   Q3_{ij}= \gamma_{didk}
 $$
 
- $u_{ni}$表示受試者n在第i 題的得分 代表真實分數
+ $u_{ni}$表示受試者$n$在第$i$ 題的得分 代表真實分數
  
- $\rm E_i(\hat \theta_n)$ 為受試者n 在第i 題上的期望分數
+ $\rm E_i(\hat \theta_n)$ 為受試者$n$ 在第$i$ 題上的期望分數
  
  
  
@@ -54,3 +54,41 @@ Yen's Q3 statistic (Yen, 1984) is one of the most commonly used methods for chec
 Local independence means that the response to any item is unrelated to any other item when trait level is
 controlled. The items may be highly intercorrelated in the whole sample; however, if trait level is controlled,
 local independence implies that no relationships remain between the items. 
+
+(de Ayala book page 133)
+
+If $|Q_3|$ equals 1.0, then the two items are perfectly dependent. In constrast, a $|Q_3|$ of 0.0 is a necessary, but not sufficient
+condition for inCoverdependence because a $Q_3 = 0$ can be obtained when the items in pair are independ of one another or be
+cause they exhibit a nonlinear relationship. Therefore, $Q_3$ is useful for identifying items that exhibit item dependence. Under
+conditional independence $Q_3$ should have an expected value of $-1 \above 1pt (L-1)$ (Yen, 1993)
+
+#### using sirt package mod.q3 function to calculate Q3 statistic
+```{r}
+library("sirt")
+data(data.read)
+```
+
+```{r}
+#Estimate the Rasch model
+mod <- sirt::rasch.mml2( data.read)
+# estmate WLEs
+mod.wle <- sirt::wle.rasch( dat=data.read, b=mod$item$b )
+```
+```{r}
+# calculate Yen's Q3 statistic
+mod.q3 <- sirt::Q3( dat=data.read, theta=mod.wle$theta, b=mod$item$b )
+```
+```{r}
+# plot Q3 statistics
+I <- ncol(data.read)
+image( 1:I, 1:I, mod.q3$q3.matrix, col=gray( 1 - (0:32)/32),
+        xlab="Item", ylab="Item")
+abline(v=c(5,9)) # borders for testlets
+abline(h=c(5,9))
+```
+To check the result of q3.mod, first to check the name of mod.q3
+```{r}
+names(mod.q3)
+mod.q3$q3.matrix
+```
+We can understand q3.matrix is 12 by 12 matrix. It's the Q3 statistic.

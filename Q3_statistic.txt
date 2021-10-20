@@ -29,4 +29,9 @@ Local independence means that the response to any item is unrelated to any other
 controlled. The items may be highly intercorrelated in the whole sample; however, if trait level is controlled,
 local independence implies that no relationships remain between the items. 
 
+(de Ayala book page 133)
+If |Q3| equals 1.0, then the two items are perfectly dependent. In constrast, a Q3 of 0.0 is a necessary, but not sufficient
+condition for inCoverdependence because a Q3 = 0 can be obtained when the items in the pair are independ of one another or be
+cause they exhibit a nonlinear relationship. Therefore, Q3 is useful for identifying items that exhibit item dependence. Under
+conditional independence Q3 should have an expected value of -1/(L-1)(Yen, 1993)
 
