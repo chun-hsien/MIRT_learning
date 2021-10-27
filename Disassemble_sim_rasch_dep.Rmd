@@ -1,0 +1,144 @@
+---
+title: "Disassemble_sim_rasch_dep_function"
+author: "Chun Hsien Wu"
+date: "2021年10月27日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Disassemble sim.rasch.dep function
+```{r}
+rm(list=ls())
+set.seed(7654)
+
+# total number of items
+I <- 11
+
+# totoal number of persons
+n <- 1500
+
+# item difficulty parameter
+b <- seq(-2, 2, len =I)
+
+# persons's ability parameter
+theta <- stats::rnorm(n, sd =1)
+
+#  itemcluster
+itemcluster <- rep(0,I)
+itemcluster[ c(3, 5)] <- 1
+itemcluster[c(2,4,9)] <- 2
+
+# residual correlations
+rho <- c(.7,.5)
+```
+
+
+```{r}
+# 產生試題作答反應機率
+probmat <- stats::plogis(outer(theta, b, "-"))
+
+# 試題長度
+I <- length(b)
+
+# 受試人數
+n <- length(theta)
+
+# 試題依賴共變數矩陣
+cov.dep <- diag(1, I)
+```
+```{r}
+#產生 試題依賴的群組
+ clusters <- unique(itemcluster[itemcluster > 0])
+clusters
+```
+
+邏輯判斷 那一題存在局部試題相依
+```{r}
+itemcluster>0
+```
+itemclus是 vector 
+
+產生 相依試題所屬於的群組 也可看出這11題中  共有5題有試題依賴
+```{r}
+itemcluster[itemcluster>0]
+```
+產生試題依賴的群組
+```{r}
+unique(itemcluster[itemcluster>0])
+```
+產生試題依賴的題組數 此例中為2
+```{r}
+CC <- length(clusters)
+CC
+```
+產生這11個試題的共變數矩陣  
+
+    for (cc in 1:CC) {
+        v1 <- which(itemcluster == cc)
+        for (ii in v1) {
+            for (jj in v1) {
+                if (ii != jj) {
+                  cov.dep[ii, jj] <- rho[cc]
+                }
+            }
+        }
+    }
+
+ 
+例如  當cc =1,  v1 <- which(itemcluster==1)
+```{r}
+which(itemcluster==1)
+```
+理解 which function 的用法 會產生 vector 3 5 表示試題3 5 屬於 itemcluster 1, 同理
+當 (itemcluster==2) 時 會產生 2 4 9 表示試題 2,4,9 屬於 itemcluster 2
+```{r}
+which(itemcluster==2)
+```
+
+上面迴圈 最後會產生11*11 covariance matrix cov.dep
+
+產生試題的變異數共變數矩陣 此例中 為11*11
+```{r}
+   CC <- length(clusters)
+    for (cc in 1:CC) {
+        v1 <- which(itemcluster == cc)
+        for (ii in v1) {
+            for (jj in v1) {
+                if (ii != jj) {
+                  cov.dep[ii, jj] <- rho[cc]
+                }
+            }
+        }
+    }
+```
+產生隨機變數 random.gen matrix 11*11 dimensions
+```{r}
+library(mvtnorm)
+ random.gen <- stats::pnorm(rmvnorm(n, mean = rep(0, 
+        I), sigma = cov.dep))
+```
+產生試題作答反應
+```{r}
+dat <- 1 * (probmat > random.gen)
+```
+產生試題作答反應的欄位名稱
+```{r}
+colnames(dat) <- paste0("I", substring(100 + 1:I, 2))
+colnames(dat) <- paste0("I", substring(100 + 1:I, 3))
+```
+
+
+ 
+ <http://rmarkdown.rstudio.com>.
+
+ **Knit**`
+
+## Including Plots
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+
