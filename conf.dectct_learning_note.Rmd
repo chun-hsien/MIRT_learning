@@ -1,0 +1,76 @@
+---
+title: "conf.dectct_learning_note"
+author: "Chun Hsien Wu"
+date: '2022-09-17'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Using sirt package and conf.detect function to analysis item dimensionality
+```{r}
+library(sirt)
+# load TIMMS data
+data(data.timss)
+# extract data
+dat <- data.timss$data
+```
+Now, to check data matrix
+```{r}
+dim(dat)
+# and take a look at the first examinees
+head(dat)
+# take out examinees responses matrix
+dat <- dat[, substring( colnames(dat),1,1)=="M" ]
+```
+extract item information
+```{r}
+# extract item informations
+iteminfo <- data.timss$item
+iteminfo
+```
+#### estimate using Rasch model
+```{r,attr.output='style="max-height: 100px;"'}
+mod1 <- sirt::rasch.mml2( dat )
+```
+
+The classification scheme of these indices are as follows (Jang & Roussos, 2007; Zhang, 2007):
+
+Strong multidimensionality 	DETECT > 1.00
+
+Moderate multidimensionality 	.40 < DETECT < 1.00
+
+Weak multidimensionality 	.20 < DETECT < .40
+
+Essential unidimensionality 	DETECT < .20
+
+Maximum value under simple structure 	ASSI=1 	RATIO=1
+
+Essential deviation from unidimensionality 	ASSI > .25 	RATIO
+> .36
+
+Essential unidimensionality 	ASSI < .25 	RATIO < .36 
+
+#### estimated WLEs
+```{r}
+wle1 <- sirt::wle.rasch( dat, b=mod1$item$b )$theta
+```
+#### detect for domains
+Now, using conf.detect function to detect for cognitive domains
+```{r}
+detect1 <- sirt::conf.detect( data=dat, score=wle1,
+                    itemcluster=iteminfo$Content.Domain )
+```
+#### Exploratory DETECT: Application of a cluster analysis employing the Ward method
+```{r}
+detect5 <- sirt::expl.detect( data=dat, score=wle1,
+                nclusters=10, N.est=nrow(dat)  )
+```
+#### # Plot cluster solution
+```{r}
+pl <- graphics::plot( detect5$clusterfit, main="Cluster solution" )
+stats::rect.hclust(detect5$clusterfit, k=4, border="red")
+```
+

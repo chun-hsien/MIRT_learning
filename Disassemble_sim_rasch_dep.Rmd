@@ -120,6 +120,7 @@ library(mvtnorm)
  random.gen <- stats::pnorm(rmvnorm(n, mean = rep(0, 
         I), sigma = cov.dep))
 ```
+
 產生試題作答反應
 ```{r}
 dat <- 1 * (probmat > random.gen)
@@ -128,6 +129,9 @@ dat <- 1 * (probmat > random.gen)
 ```{r}
 colnames(dat) <- paste0("I", substring(100 + 1:I, 2))
 colnames(dat) <- paste0("I", substring(100 + 1:I, 3))
+```
+```{r}
+
 ```
 
 

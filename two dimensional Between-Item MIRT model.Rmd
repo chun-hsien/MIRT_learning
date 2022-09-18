@@ -1,0 +1,81 @@
+---
+title: "Between-Item MIRT model estimation"
+author: "Chun Hsien Wu"
+date: '2022-09-18'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### two dimensional Between-Item MIRT model
+frist, set random seed
+
+```{r}
+rm(list=ls())
+set.seed(9776)
+```         
+set sample size, define item difficulties and length of items
+```{r}
+N <- 3400
+f0 <- c( .5, .25, -.25, -.5, 0, -.5, -.25, .25, .5, 0 )
+I <- length(f0)
+```
+belod coding shows:define loadings
+
+From f1, we can see that item 1 to 5 belong to first dimension, and item 6 to 10 belong to second dimension.
+```{r}
+f1 <- matrix( 0, I, 2 )
+f1[ 1:5,1] <- c(.8,.7,.6,.5, .5)
+f1[ 6:10,2] <- c(.8,.7,.6,.5, .5 )
+f1
+```
+Setting theta's covariance matrix and simulate thetas
+```{r}
+Pval <- matrix( c(1,.5,.5,1), 2, 2 )
+# simulate theta
+library(mvtnorm)
+theta <- mvtnorm::rmvnorm(N, mean=c(0,0), sigma=Pval )
+```
+Let's see how thetas distribute
+```{r}
+plot(theta)
+```
+simulate item responses
+```{r}
+dat <- matrix( NA, N, I )
+for (ii in 1:I){ # ii <- 1
+    dat[,ii] <- 1*( stats::pnorm(f0[ii]+theta[,1]*f1[ii,1]+theta[,2]*f1[ii,2])>
+                     stats::runif(N) )
+        }
+colnames(dat) <- paste0("I", 1:I)
+dim(dat)
+head(dat)
+```
+Add item cluster, learn from conf.detect: Confirmatory DETECT  
+```{r}
+itemcluster <- c( rep(1,5), rep(2,I-5) )
+```
+ From f1, I can realize this simulated data is generated under between item MIRT model.
+ 
+Now try to fit conf.detect function
+```{r}
+# estimate Rasch model
+mod1 <- sirt::rasch.mml2( dat )
+# estimate WLEs
+wle1 <- sirt::wle.rasch( dat, b=mod1$item$b )$theta
+```
+
+DETECT for content domains
+```{r}
+detect1 <- sirt::conf.detect( data=dat, score=wle1,
+                    itemcluster= itemcluster )
+```
+
+Exploratory DETECT: Application of a cluster analysis employing the Ward method
+
+```{r}
+detect2 <- sirt::expl.detect( data=dat, score=wle1,
+                nclusters=10, N.est=nrow(dat)  )
+```
